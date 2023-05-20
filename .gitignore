@@ -1,0 +1,8 @@
+.envrc
+.terraform
+terraform.tfstate*
+.terraform.*
+/.idea
+/.dream
+/terraform.tfvars
+/envoy.yaml
