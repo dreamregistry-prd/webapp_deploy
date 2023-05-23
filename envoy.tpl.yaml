@@ -1,0 +1,71 @@
+# Resources loaded at boot, rather than dynamically via APIs.
+# https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/bootstrap/v3/bootstrap.proto#envoy-v3-api-msg-config-bootstrap-v3-bootstrap-staticresources
+static_resources:
+  # A listener wraps an address to bind to and filters to run on messages on that address.
+  # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/listener/v3/listener.proto#envoy-v3-api-msg-config-listener-v3-listener
+  listeners:
+    # The address of an interface to bind to. Interfaces can be sockets, pipes, or internal addresses.
+    # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/core/v3/address.proto#envoy-v3-api-msg-config-core-v3-address
+    - address:
+        # This address is for a network socket, with an IP and a port.
+        # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/core/v3/address.proto#envoy-v3-api-msg-config-core-v3-socketaddress
+        socket_address:
+          # The value 0.0.0.0 indicates that all interfaces will be bound to.
+          address: 0.0.0.0
+          # The IP port number to bind to.
+          port_value: 80
+      # Filter chains wrap several related configurations, e.g. match criteria, TLS context, filters, etc.
+      # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/listener/v3/listener_components.proto#envoy-v3-api-msg-config-listener-v3-filterchain
+      filter_chains:
+        # An ordered list of filters to apply to connections.
+        # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/listener/v3/listener_components.proto#envoy-v3-api-msg-config-listener-v3-filter
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              # A generic configuration whose fields vary with its "@type".
+              typed_config:
+                # The HttpConnectionManager filter converts raw data into HTTP messages, logging,
+                # tracing, header manipulation, routing, and statistics.
+                # https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/http/http_connection_management#arch-overview-http-conn-man
+                # https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto#extension-envoy-filters-network-http-connection-manager
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                # The human-readable prefix used when emitting statistics.
+                stat_prefix: ingress_http
+
+                # The static routing table used by this filter. Individual routes may also add "rate
+                # limit descriptors", essentially tags, to requests which may be referenced in the
+                # "http_filters" config.
+                # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route.proto#envoy-v3-api-msg-config-route-v3-routeconfiguration
+                route_config:
+                  name: local_route
+                  # An array of virtual hosts which will compose the routing table.
+                  # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-virtualhost
+                  virtual_hosts:
+                    - name: backend
+                      # A list of domains, e.g. *.foo.com, that will match this virtual host.
+                      domains:
+                        - "*"
+                      # A list of routes to match against requests, the first one that matches will be used.
+                      # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-route
+                      routes:
+                        # The conditions that a request must satisfy to follow this route.
+                        # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-routematch
+                        - match:
+                            # A match against the beginning of the :path pseudo-header.
+                            prefix: "/"
+                          direct_response:
+                            status: 200
+                            body:
+                              inline_string: "Hello, world!"
+                # Individual filters applied by the HTTP Connection Manager.
+                # https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto#envoy-v3-api-msg-extensions-filters-network-http-connection-manager-v3-httpfilter
+                http_filters:
+                  # The router filter performs HTTP forwarding with optional logic for retries, statistics, etc.
+                  # https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/router/v3/router.proto#extension-envoy-filters-http-router
+                  # https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/router_filter#config-http-filters-router
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  # Configurations for logically similar upstream hosts, called clusters, that Envoy connects to.
+  # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto#envoy-v3-api-msg-config-cluster-v3-cluster
+  clusters: [ ]
+

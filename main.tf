@@ -91,11 +91,24 @@ resource "aws_ecs_task_definition" "app" {
       essential    = true
       portMappings = [
         {
-          containerPort = 8000
+          containerPort = 80
           hostPort      = 80
           protocol      = "tcp"
         },
       ]
+      dependsOn = [
+        {
+          containerName = "config"
+          condition     = "COMPLETE"
+        },
+      ]
+    },
+    {
+      name         = "config"
+      image        = "bash:4.4"
+      cpu          = 256
+      memory       = 512
+      command  = ["bash", "-c", "echo ${file("${path.module}/config.yaml")} > /opt/bitnami/envoy/conf/envoy.yaml"]
     },
   ])
 }
