@@ -76,6 +76,8 @@ resource "random_pet" "task_definition_name" {
   prefix = local.project_name
 }
 
+data "aws_region" "current" {}
+
 resource "aws_ecs_task_definition" "app" {
   family                   = random_pet.task_definition_name.id
   requires_compatibilities = ["FARGATE"]
@@ -102,6 +104,15 @@ resource "aws_ecs_task_definition" "app" {
           protocol      = "tcp"
         },
       ]
+      logConfiguration = {
+        logDriver = "awslogs",
+        options   = {
+          awslogs-group         = "${local.project_name}-container",
+          awslogs-region        = data.aws_region.current.name,
+          awslogs-create-group  = true,
+          awslogs-stream-prefix = local.project_name
+        }
+      }
       dependsOn = [
         {
           containerName = "config"
@@ -115,6 +126,15 @@ resource "aws_ecs_task_definition" "app" {
       cpu         = 256
       memory      = 512
       essential   = false
+      logConfiguration = {
+        logDriver = "awslogs",
+        options   = {
+          awslogs-group         = "${local.project_name}-config",
+          awslogs-region        = data.aws_region.current.name,
+          awslogs-create-group  = true,
+          awslogs-stream-prefix = local.project_name
+        }
+      }
       mountPoints = [
         {
           sourceVolume  = "config"
