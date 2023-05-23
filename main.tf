@@ -108,7 +108,7 @@ resource "aws_ecs_task_definition" "app" {
       image        = "bash:4.4"
       cpu          = 256
       memory       = 512
-      command  = ["bash", "-c", "echo ${file("${path.module}/config.yaml")} > /opt/bitnami/envoy/conf/envoy.yaml"]
+      command  = ["bash", "-c", "echo ${file("${path.module}/envoy.tpl.yaml")} > /opt/bitnami/envoy/conf/envoy.yaml"]
     },
   ])
 }
