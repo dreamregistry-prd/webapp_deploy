@@ -142,7 +142,7 @@ resource "aws_ecs_task_definition" "app" {
           "awslogs-stream-prefix" : local.project_name
         }
       }
-      environment = env
+      environment = local.env
     }
   ])
 }
