@@ -134,7 +134,7 @@ resource "aws_ecs_task_definition" "app" {
       environment = concat([
         for k, v in var.dream_env : jsondecode({
           name  = k,
-          value = try(v.arn, tostring(v))
+          value = try(tostring(v.arn), tostring(v))
         })
       ], [
         jsonencode({
