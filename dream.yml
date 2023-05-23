@@ -2,4 +2,5 @@ type: deployment
 dependencies:
   redis: ""
   session_secret: ""
+  cognito_app: ""
   docker_build: ""
