@@ -84,7 +84,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
-  execution_role_arn       = aws_iam_role.ecs_cloudwatch_role.arn
+  execution_role_arn       = aws_iam_role.task_execution.arn
   container_definitions    = jsonencode([
     {
       name         = "envoy"
@@ -118,10 +118,13 @@ resource "aws_lb_target_group" "app" {
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 module "alb_certificate" {
-  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.18.0"
+  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.19.0"
   alb_arn            = var.alb_arn
   domain_name_prefix = local.domain_prefix
   route53_zone_name  = var.domain_suffix
@@ -179,22 +182,23 @@ data "aws_iam_policy_document" "ecs_assume_role" {
   }
 }
 
-resource "aws_iam_role" "ecs_cloudwatch_role" {
-  name               = "ECSCloudWatchRole"
+resource "aws_iam_role" "task_execution" {
+  name               = "DReAMPoCECSTaskExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
 
-resource "aws_iam_policy" "allow_write_logs" {
-  policy      = data.aws_iam_policy_document.allow_ecs_to_write_logs.json
-  name        = "AllowECSTasksToWriteLogs"
-  description = "Allow ECS to write logs to CloudWatch"
+resource "aws_iam_policy" "task_execution" {
+  policy      = data.aws_iam_policy_document.task_execution.json
+  name        = "DReAMPoCECSTaskExecutionPolicy"
+  description = "Grants required permissions to ECS tasks"
 }
 
-resource "aws_iam_role_policy_attachment" "allow_write_logs" {
-  policy_arn = aws_iam_policy.allow_write_logs.arn
-  role       = aws_iam_role.ecs_cloudwatch_role.name
+resource "aws_iam_role_policy_attachment" "task_execution" {
+  policy_arn = aws_iam_policy.task_execution.arn
+  role       = aws_iam_role.task_execution.name
 }
-data "aws_iam_policy_document" "allow_ecs_to_write_logs" {
+
+data "aws_iam_policy_document" "task_execution" {
   statement {
     effect  = "Allow"
     actions = [
