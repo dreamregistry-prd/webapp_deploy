@@ -51,23 +51,23 @@ locals {
   project_name  = var.project_name != null ? var.project_name : basename(var.dream_project_dir)
   domain_prefix = var.domain_prefix != null ? var.domain_prefix : local.project_name
   domain_name   = "${local.domain_prefix}.${var.domain_suffix}"
-#  raw_env       = [
-#    for k, v in var.dream_env : {
-#      name  = k
-#      value = try(tostring(try(v.arn, v)), null)
-#    }
-#  ]
-#  env = concat([
-#    for k, v in local.raw_env : jsondecode({
-#      name  = k
-#      value = v
-#    }) if v != null
-#  ], [
-#    jsonencode({
-#      name  = "PORT"
-#      value = "9000"
-#    })
-#  ])
+  raw_env = [
+    for k, v in var.dream_env : {
+      name  = k
+      value = try(v.arn, try(tostring(v), null))
+    }
+  ]
+  env = concat(
+    [
+      for e in local.raw_env : e if e.value != null
+    ],
+    [
+      {
+        name  = "PORT"
+        value = "9000"
+      }
+    ]
+  )
 }
 
 resource "aws_ecs_service" "app" {
@@ -126,30 +126,30 @@ resource "aws_ecs_task_definition" "app" {
         }
       }
     },
-#    {
-#      name         = "oidc"
-#      image        = "public.ecr.aws/hereya/oidc-sidecar:latest"
-#      cpu          = 256
-#      memory       = 512
-#      essential    = true
-#      portMappings = [
-#        {
-#          containerPort = 9000
-#          hostPort      = 9000
-#          protocol      = "tcp"
-#        },
-#      ]
-#      logConfiguration = {
-#        logDriver = "awslogs"
-#        options   = {
-#          "awslogs-group" : "${local.project_name}-oidc"
-#          "awslogs-region" : data.aws_region.current.name
-#          "awslogs-create-group" : "true"
-#          "awslogs-stream-prefix" : local.project_name
-#        }
-#      }
-#      environment = local.env
-#    }
+    {
+      name         = "oidc"
+      image        = "public.ecr.aws/hereya/oidc-sidecar:latest"
+      cpu          = 256
+      memory       = 512
+      essential    = true
+      portMappings = [
+        {
+          containerPort = 9000
+          hostPort      = 9000
+          protocol      = "tcp"
+        },
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options   = {
+          "awslogs-group" : "${local.project_name}-oidc"
+          "awslogs-region" : data.aws_region.current.name
+          "awslogs-create-group" : "true"
+          "awslogs-stream-prefix" : local.project_name
+        }
+      }
+      environment = jsonencode(local.env)
+    }
   ])
 }
 
