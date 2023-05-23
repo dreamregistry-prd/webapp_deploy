@@ -126,6 +126,7 @@ module "alb_certificate" {
   domain_name_prefix = local.domain_prefix
   route53_zone_name  = var.domain_suffix
   attach_to_alb      = true
+  alb_listener_arn   = data.aws_lb_listener.https.arn
 }
 
 resource "aws_lb_listener_rule" "host_based_weighted_routing" {
