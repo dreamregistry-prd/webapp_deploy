@@ -89,6 +89,12 @@ resource "aws_ecs_task_definition" "app" {
       cpu          = 256
       memory       = 512
       essential    = true
+      mountPoints = [
+        {
+          sourceVolume  = "config"
+          containerPath = "/opt/bitnami/envoy/conf"
+        },
+      ]
       portMappings = [
         {
           containerPort = 80
@@ -109,12 +115,22 @@ resource "aws_ecs_task_definition" "app" {
       cpu       = 256
       memory    = 512
       essential = false
+      mountPoints = [
+        {
+          sourceVolume  = "config"
+          containerPath = "/opt/bitnami/envoy/conf"
+        },
+      ]
       command   = [
         "bash", "-c",
         "echo \"${file("${path.module}/envoy.tpl.yaml")}\" > /opt/bitnami/envoy/conf/envoy.yaml"
       ]
     },
   ])
+  volume {
+    name      = "config"
+    host_path = "/ecs/service-storage"
+  }
 }
 
 resource "aws_lb_target_group" "app" {
