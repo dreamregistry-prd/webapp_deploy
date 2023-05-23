@@ -108,10 +108,10 @@ resource "aws_ecs_task_definition" "app" {
       logConfiguration = {
         logDriver = "awslogs"
         options   = {
-          awslogs-group         = "${local.project_name}-container"
-          awslogs-region        = data.aws_region.current.name
-          awslogs-create-group  = true
-          awslogs-stream-prefix = local.project_name
+          "awslogs-group" : "${local.project_name}-app"
+          "awslogs-region" : data.aws_region.current.name
+          "awslogs-create-group" : "true"
+          "awslogs-stream-prefix" : local.project_name
         }
       }
       dependsOn = [
@@ -130,10 +130,10 @@ resource "aws_ecs_task_definition" "app" {
       logConfiguration = {
         logDriver = "awslogs"
         options   = {
-          awslogs-group         = "${local.project_name}-config"
-          awslogs-region        = data.aws_region.current.name
-          awslogs-create-group  = true
-          awslogs-stream-prefix = local.project_name
+          "awslogs-group" : "${local.project_name}-config"
+          "awslogs-region" : data.aws_region.current.name
+          "awslogs-create-group" : "true"
+          "awslogs-stream-prefix" : local.project_name
         }
       }
       mountPoints = [
