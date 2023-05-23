@@ -134,12 +134,12 @@ resource "aws_ecs_task_definition" "app" {
       environment = concat([
         for k, v in var.dream_env : jsondecode({
           name  = k,
-          value = try(tostring(v.arn), tostring(v))
+          value = tostring(try(tostring(v.arn), tostring(v)))
         })
       ], [
         jsonencode({
           name  = "PORT",
-          value = 9000
+          value = "9000"
         })
       ])
     }
