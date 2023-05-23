@@ -84,6 +84,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 512
   memory                   = 1024
+  task_role_arn            = aws_iam_role.ecs_cloudwatch_role.arn
   container_definitions    = jsonencode([
     {
       name        = "envoy"
@@ -105,11 +106,11 @@ resource "aws_ecs_task_definition" "app" {
         },
       ]
       logConfiguration = {
-        logDriver = "awslogs",
+        logDriver = "awslogs"
         options   = {
-          awslogs-group         = "${local.project_name}-container",
-          awslogs-region        = data.aws_region.current.name,
-          awslogs-create-group  = true,
+          awslogs-group         = "${local.project_name}-container"
+          awslogs-region        = data.aws_region.current.name
+          awslogs-create-group  = true
           awslogs-stream-prefix = local.project_name
         }
       }
@@ -121,17 +122,17 @@ resource "aws_ecs_task_definition" "app" {
       ]
     },
     {
-      name        = "config"
-      image       = "bash:4.4"
-      cpu         = 256
-      memory      = 512
-      essential   = false
+      name             = "config"
+      image            = "bash:4.4"
+      cpu              = 256
+      memory           = 512
+      essential        = false
       logConfiguration = {
-        logDriver = "awslogs",
+        logDriver = "awslogs"
         options   = {
-          awslogs-group         = "${local.project_name}-config",
-          awslogs-region        = data.aws_region.current.name,
-          awslogs-create-group  = true,
+          awslogs-group         = "${local.project_name}-config"
+          awslogs-region        = data.aws_region.current.name
+          awslogs-create-group  = true
           awslogs-stream-prefix = local.project_name
         }
       }
@@ -202,6 +203,46 @@ resource "aws_security_group_rule" "allow_all_out" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
+}
+
+data "aws_iam_policy_document" "ecs_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "ecs_cloudwatch_role" {
+  name               = "ECSCloudWatchRole"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
+}
+
+resource "aws_iam_policy" "allow_write_logs" {
+  policy      = data.aws_iam_policy_document.allow_ecs_to_write_logs.json
+  name        = "AllowECSTasksToWriteLogs"
+  description = "Allow ECS to write logs to CloudWatch"
+}
+
+resource "aws_iam_role_policy_attachment" "allow_write_logs" {
+  policy_arn = aws_iam_policy.allow_write_logs.arn
+  role       = aws_iam_role.ecs_cloudwatch_role.name
+}
+data "aws_iam_policy_document" "allow_ecs_to_write_logs" {
+  statement {
+    effect  = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["arn:aws:logs:*:*:*"]
+  }
 }
 
 output "DEPLOYED_IMAGE" {
