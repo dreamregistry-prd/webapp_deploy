@@ -129,7 +129,6 @@ resource "aws_ecs_task_definition" "app" {
   ])
   volume {
     name = "config"
-    host = {}
   }
 }
 
