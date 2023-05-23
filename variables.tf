@@ -18,11 +18,6 @@ variable "alb_arn" {
   description = "The ARN of the ALB to expose the app on"
 }
 
-variable "alb_https_listener_arn" {
-  type        = string
-  description = "The ARN of the HTTPS listener on the ALB"
-}
-
 variable "domain_prefix" {
   description = "domain prefix to use for the service"
   type        = string
