@@ -118,15 +118,11 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = local.project_name
+  name_prefix = substr(local.project_name, 0, 6)
   port        = 80
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 module "alb_certificate" {
