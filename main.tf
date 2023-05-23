@@ -88,16 +88,10 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions    = jsonencode([
     {
       name        = "envoy"
-      image       = "public.ecr.aws/bitnami/envoy:1.26.1"
+      image       = "public.ecr.aws/c5q9w4j6/bff-envoy:latest"
       cpu         = 256
       memory      = 512
       essential   = true
-      mountPoints = [
-        {
-          sourceVolume  = "config"
-          containerPath = "/opt/bitnami/envoy/conf"
-        },
-      ]
       portMappings = [
         {
           containerPort = 80
@@ -114,43 +108,8 @@ resource "aws_ecs_task_definition" "app" {
           "awslogs-stream-prefix" : local.project_name
         }
       }
-      dependsOn = [
-        {
-          containerName = "config"
-          condition     = "COMPLETE"
-        },
-      ]
-    },
-    {
-      name             = "config"
-      image            = "bash:4.4"
-      cpu              = 256
-      memory           = 512
-      essential        = false
-      logConfiguration = {
-        logDriver = "awslogs"
-        options   = {
-          "awslogs-group" : "${local.project_name}-config"
-          "awslogs-region" : data.aws_region.current.name
-          "awslogs-create-group" : "true"
-          "awslogs-stream-prefix" : local.project_name
-        }
-      }
-      mountPoints = [
-        {
-          sourceVolume  = "config"
-          containerPath = "/opt/bitnami/envoy/conf"
-        },
-      ]
-      command = [
-        "bash", "-c",
-        "echo \"${file("${path.module}/envoy.tpl.yaml")}\" > /opt/bitnami/envoy/conf/envoy.yaml"
-      ]
     },
   ])
-  volume {
-    name = "config"
-  }
 }
 
 resource "aws_lb_target_group" "app" {
