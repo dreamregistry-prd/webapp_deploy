@@ -84,11 +84,11 @@ resource "aws_ecs_task_definition" "app" {
   memory                   = 1024
   container_definitions    = jsonencode([
     {
-      name         = "envoy"
-      image        = "public.ecr.aws/bitnami/envoy:1.26.1"
-      cpu          = 256
-      memory       = 512
-      essential    = true
+      name        = "envoy"
+      image       = "public.ecr.aws/bitnami/envoy:1.26.1"
+      cpu         = 256
+      memory      = 512
+      essential   = true
       mountPoints = [
         {
           sourceVolume  = "config"
@@ -110,26 +110,26 @@ resource "aws_ecs_task_definition" "app" {
       ]
     },
     {
-      name      = "config"
-      image     = "bash:4.4"
-      cpu       = 256
-      memory    = 512
-      essential = false
+      name        = "config"
+      image       = "bash:4.4"
+      cpu         = 256
+      memory      = 512
+      essential   = false
       mountPoints = [
         {
           sourceVolume  = "config"
           containerPath = "/opt/bitnami/envoy/conf"
         },
       ]
-      command   = [
+      command = [
         "bash", "-c",
         "echo \"${file("${path.module}/envoy.tpl.yaml")}\" > /opt/bitnami/envoy/conf/envoy.yaml"
       ]
     },
   ])
   volume {
-    name      = "config"
-    host_path = "/ecs/service-storage"
+    name = "config"
+    host = {}
   }
 }
 
