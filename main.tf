@@ -87,11 +87,11 @@ resource "aws_ecs_task_definition" "app" {
   execution_role_arn       = aws_iam_role.ecs_cloudwatch_role.arn
   container_definitions    = jsonencode([
     {
-      name        = "envoy"
-      image       = "public.ecr.aws/c5q9w4j6/bff-envoy:latest"
-      cpu         = 256
-      memory      = 512
-      essential   = true
+      name         = "envoy"
+      image        = "public.ecr.aws/c5q9w4j6/bff-envoy:latest"
+      cpu          = 256
+      memory       = 512
+      essential    = true
       portMappings = [
         {
           containerPort = 8080
@@ -125,6 +125,7 @@ module "alb_certificate" {
   alb_arn            = var.alb_arn
   domain_name_prefix = local.domain_prefix
   route53_zone_name  = var.domain_suffix
+  attach_to_alb      = true
 }
 
 resource "aws_lb_listener_rule" "host_based_weighted_routing" {
