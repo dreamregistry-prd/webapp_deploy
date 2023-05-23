@@ -94,8 +94,8 @@ resource "aws_ecs_task_definition" "app" {
       essential   = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8080
+          hostPort      = 8080
           protocol      = "tcp"
         },
       ]
@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "app" {
 
 resource "aws_lb_target_group" "app" {
   name_prefix = substr(local.project_name, 0, 6)
-  port        = 80
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
@@ -149,8 +149,8 @@ resource "aws_security_group" "web" {
 resource "aws_security_group_rule" "allow_http" {
   security_group_id        = aws_security_group.web.id
   type                     = "ingress"
-  from_port                = 80
-  to_port                  = 80
+  from_port                = 8080
+  to_port                  = 8080
   protocol                 = "tcp"
   source_security_group_id = tolist(data.aws_lb.lb.security_groups)[0]
 }
