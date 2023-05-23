@@ -51,6 +51,17 @@ locals {
   project_name  = var.project_name != null ? var.project_name : basename(var.dream_project_dir)
   domain_prefix = var.domain_prefix != null ? var.domain_prefix : local.project_name
   domain_name   = "${local.domain_prefix}.${var.domain_suffix}"
+  env           = concat([
+    for k, v in var.dream_env : jsondecode({
+      name  = k
+      value = try(tostring(v.arn), tostring(v), "")
+    })
+  ], [
+    jsonencode({
+      name  = "PORT"
+      value = "9000"
+    })
+  ])
 }
 
 resource "aws_ecs_service" "app" {
@@ -131,17 +142,7 @@ resource "aws_ecs_task_definition" "app" {
           "awslogs-stream-prefix" : local.project_name
         }
       }
-      environment = concat([
-        for k, v in var.dream_env : jsondecode({
-          name  = k,
-          value = tostring(try(tostring(v.arn), tostring(v)))
-        })
-      ], [
-        jsonencode({
-          name  = "PORT",
-          value = "9000"
-        })
-      ])
+      environment = env
     }
   ])
 }
