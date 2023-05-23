@@ -88,7 +88,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions    = jsonencode([
     {
       name         = "envoy"
-      image        = "public.ecr.aws/c5q9w4j6/bff-envoy:latest"
+      image        = "public.ecr.aws/hereya/bff-envoy:latest"
       cpu          = 256
       memory       = 512
       essential    = true
@@ -109,6 +109,40 @@ resource "aws_ecs_task_definition" "app" {
         }
       }
     },
+    {
+      name         = "oidc"
+      image        = "public.ecr.aws/hereya/oidc-sidecar:latest"
+      cpu          = 256
+      memory       = 512
+      essential    = true
+      portMappings = [
+        {
+          containerPort = 9000
+          hostPort      = 9000
+          protocol      = "tcp"
+        },
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options   = {
+          "awslogs-group" : "${local.project_name}-oidc"
+          "awslogs-region" : data.aws_region.current.name
+          "awslogs-create-group" : "true"
+          "awslogs-stream-prefix" : local.project_name
+        }
+      }
+      environment = concat([
+        for k, v in var.dream_env : jsondecode({
+          name  = k,
+          value = try(v.arn, tostring(v))
+        })
+      ], [
+        jsonencode({
+          name  = "PORT",
+          value = 9000
+        })
+      ])
+    }
   ])
 }
 
@@ -202,11 +236,16 @@ data "aws_iam_policy_document" "task_execution" {
   statement {
     effect  = "Allow"
     actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
+      "ssm:GetParameters"
     ]
-    resources = ["arn:aws:logs:*:*:*"]
+    resources = ["*"]
   }
 }
 
