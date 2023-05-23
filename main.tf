@@ -51,11 +51,17 @@ locals {
   project_name  = var.project_name != null ? var.project_name : basename(var.dream_project_dir)
   domain_prefix = var.domain_prefix != null ? var.domain_prefix : local.project_name
   domain_name   = "${local.domain_prefix}.${var.domain_suffix}"
-  env           = concat([
-    for k, v in var.dream_env : jsondecode({
+  raw_env       = [
+    for k, v in var.dream_env : {
       name  = k
-      value = tostring(try(v.arn, v))
-    })
+      value = tostring(try(try(v.arn, v), null))
+    }
+  ]
+  env = concat([
+    for k, v in local.raw_env : jsondecode({
+      name  = k
+      value = v
+    }) if v != null
   ], [
     jsonencode({
       name  = "PORT"
