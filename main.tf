@@ -202,6 +202,11 @@ resource "aws_lb_target_group" "app" {
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
+  health_check {
+    interval          = 10
+    path              = "/health"
+    healthy_threshold = 2
+  }
   lifecycle {
     create_before_destroy = true
   }
