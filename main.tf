@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions    = jsonencode([
     {
       name         = "envoy"
-      image        = "public.ecr.aws/hereya/bff-envoy:latest"
+      image        = "public.ecr.aws/hereya/bff-envoy:522c902"
       cpu          = 256
       memory       = 512
       essential    = true
@@ -302,8 +302,4 @@ data "aws_iam_policy_document" "task_execution" {
     ]
     resources = ["*"]
   }
-}
-
-output "DEPLOYED_IMAGE" {
-  value = var.dream_env.DOCKER_IMAGES[0]
 }
