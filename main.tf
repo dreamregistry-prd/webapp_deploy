@@ -60,7 +60,7 @@ locals {
   env = concat([
     for k, v in local.raw_env : jsondecode({
       name  = k
-      value = tostring(v)
+      value = v
     }) if v != null
   ], [
     jsonencode({
@@ -258,4 +258,8 @@ data "aws_iam_policy_document" "task_execution" {
 
 output "DEPLOYED_IMAGE" {
   value = var.dream_env.DOCKER_IMAGES[0]
+}
+
+output "env" {
+  value = local.env
 }
