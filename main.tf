@@ -54,7 +54,7 @@ locals {
   env           = concat([
     for k, v in var.dream_env : jsondecode({
       name  = k
-      value = try(tostring(v.arn), tostring(v), "")
+      value = tostring(try(v.arn, v))
     })
   ], [
     jsonencode({
