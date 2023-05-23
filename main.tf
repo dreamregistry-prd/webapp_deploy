@@ -51,10 +51,16 @@ locals {
   project_name  = var.project_name != null ? var.project_name : basename(var.dream_project_dir)
   domain_prefix = var.domain_prefix != null ? var.domain_prefix : local.project_name
   domain_name   = "${local.domain_prefix}.${var.domain_suffix}"
-  raw_env = [
+  raw_env       = [
     for k, v in var.dream_env : {
       name  = k
-      value = try(v.arn, try(tostring(v), null))
+      value = try(tostring(v), null)
+    }
+  ]
+  raw_secrets = [
+    for k, v in var.dream_env : {
+      name      = k
+      valueFrom = try(v.arn, null)
     }
   ]
   env = concat(
@@ -68,6 +74,9 @@ locals {
       }
     ]
   )
+  secrets = [
+    for e in local.raw_secrets : e if e.valueFrom != null
+  ]
 }
 
 resource "aws_ecs_service" "app" {
@@ -149,6 +158,7 @@ resource "aws_ecs_task_definition" "app" {
         }
       }
       environment = local.env
+      secrets     = local.secrets
     }
   ])
 }
