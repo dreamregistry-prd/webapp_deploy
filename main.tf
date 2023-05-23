@@ -53,7 +53,7 @@ locals {
   domain_name   = "${local.domain_prefix}.${var.domain_suffix}"
 }
 
-resource "aws_ecs_service" "nginx" {
+resource "aws_ecs_service" "app" {
   name            = local.project_name
   cluster         = data.aws_ecs_cluster.fargate.id
   task_definition = aws_ecs_task_definition.app.arn
@@ -61,8 +61,8 @@ resource "aws_ecs_service" "nginx" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = data.aws_subnets.private.ids
-    security_groups  = [aws_security_group.web.id]
+    subnets         = data.aws_subnets.private.ids
+    security_groups = [aws_security_group.web.id]
   }
 
   load_balancer {
@@ -101,10 +101,10 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name_prefix = local.project_name
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.default.id
+  name     = local.project_name
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
 
   lifecycle {
     create_before_destroy = true
