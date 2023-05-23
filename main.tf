@@ -108,8 +108,8 @@ resource "aws_ecs_task_definition" "app" {
   family                   = random_pet.task_definition_name.id
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   execution_role_arn       = aws_iam_role.task_execution.arn
   container_definitions    = jsonencode([
     {
@@ -134,6 +134,39 @@ resource "aws_ecs_task_definition" "app" {
           "awslogs-stream-prefix" : local.project_name
         }
       }
+    },
+    {
+      name         = "app"
+      image        = var.dream_env.DOCKER_IMAGES[0]
+      cpu          = 512
+      memory       = 1024
+      essential    = true
+      portMappings = [
+        {
+          containerPort = 3000
+          hostPort      = 3000
+          protocol      = "tcp"
+        },
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options   = {
+          "awslogs-group" : "${local.project_name}-main"
+          "awslogs-region" : data.aws_region.current.name
+          "awslogs-create-group" : "true"
+          "awslogs-stream-prefix" : local.project_name
+        }
+      },
+      environment = [
+        {
+          name  = "PORT"
+          value = "3000"
+        },
+        {
+          name  = "AUTH_ENDPOINT"
+          value = "http://127.0.0.1:9000/auth/authenticate"
+        }
+      ]
     },
     {
       name         = "oidc"
