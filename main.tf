@@ -54,13 +54,13 @@ locals {
   raw_env       = [
     for k, v in var.dream_env : {
       name  = k
-      value = tostring(try(try(v.arn, v), null))
+      value = try(tostring(try(v.arn, v)), null)
     }
   ]
   env = concat([
     for k, v in local.raw_env : jsondecode({
       name  = k
-      value = v
+      value = tostring(v)
     }) if v != null
   ], [
     jsonencode({
