@@ -259,7 +259,3 @@ data "aws_iam_policy_document" "task_execution" {
 output "DEPLOYED_IMAGE" {
   value = var.dream_env.DOCKER_IMAGES[0]
 }
-
-output "env" {
-  value = var.dream_env
-}
