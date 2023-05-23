@@ -148,7 +148,7 @@ resource "aws_ecs_task_definition" "app" {
           "awslogs-stream-prefix" : local.project_name
         }
       }
-      environment = jsonencode(local.env)
+      environment = local.env
     }
   ])
 }
