@@ -204,7 +204,7 @@ resource "aws_ecs_task_definition" "app" {
     },
     {
       name         = "oidc"
-      image        = "public.ecr.aws/hereya/oidc-sidecar:latest"
+      image        = "public.ecr.aws/hereya/oidc-sidecar:06e31a8"
       cpu          = 256
       memory       = 512
       essential    = true
