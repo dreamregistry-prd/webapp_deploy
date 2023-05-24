@@ -73,23 +73,23 @@ locals {
         value = module.cognito_app.OIDC_CLIENT_ID
       },
       {
-        name = "OIDC_ISSUER_URL"
+        name  = "OIDC_ISSUER_URL"
         value = module.cognito_app.OIDC_ISSUER_URL
       },
       {
-        name = "OIDC_DISCOVERY_URL"
+        name  = "OIDC_DISCOVERY_URL"
         value = module.cognito_app.OIDC_DISCOVERY_URL
       },
       {
-        name = "OIDC_LOGOUT_URL"
+        name  = "OIDC_LOGOUT_URL"
         value = module.cognito_app.OIDC_LOGOUT_URL
       },
       {
-        name = "OIDC_LOGOUT_REDIRECT_URL"
+        name  = "OIDC_LOGOUT_REDIRECT_URL"
         value = module.cognito_app.OIDC_LOGOUT_REDIRECT_URL
       },
       {
-        name = "OIDC_CALLBACK_URL"
+        name  = "OIDC_CALLBACK_URL"
         value = module.cognito_app.OIDC_CALLBACK_URL
       }
     ],
@@ -104,10 +104,12 @@ locals {
     [
       for e in local.raw_secrets : e if e.valueFrom != null
     ],
-    {
+    [
+      {
         name      = "OIDC_CLIENT_SECRET"
         valueFrom = module.cognito_app.OIDC_CLIENT_SECRET.arn
-    }
+      }
+    ]
   )
 }
 
