@@ -1,12 +1,12 @@
-# REMIX DEPLOY
+# WEB APP DEPLOY
 
-A DReAM package that deploys Remix app to ECS secured with Cognito.
+A DReAM package that deploys Web app to ECS secured with Cognito.
 
 ## Usage
 
 ```shell
-dream add remix_deploy
+dream add webapp_deploy
 ```
 
-See [here](https://github.com/dreamregistry/remix_deploy) for how to integrate
+See [here](https://github.com/dreamregistry/webapp_deploy) for how to integrate
 this package into your app.
