@@ -96,7 +96,7 @@ locals {
     [
       {
         name  = "PORT"
-        value = "9000"
+        value = 9000
       }
     ]
   )
