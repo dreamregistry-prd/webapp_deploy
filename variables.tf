@@ -1,11 +1,6 @@
-variable "cognito_user_pool_id" {
+variable "auth0_custom_domain" {
   type        = string
-  description = "The name of the user pool to create the app client in"
-}
-
-variable "cognito_user_pool_domain" {
-  type        = string
-  description = "The fully-qualified domain name of the user pool"
+  description = "Auth0 custom domain"
 }
 
 variable "ecs_cluster_name" {

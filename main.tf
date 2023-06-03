@@ -70,27 +70,27 @@ locals {
     [
       {
         name  = "OIDC_CLIENT_ID"
-        value = module.cognito_app.OIDC_CLIENT_ID
+        value = module.auth0_oidc.OIDC_CLIENT_ID
       },
       {
         name  = "OIDC_ISSUER_URL"
-        value = module.cognito_app.OIDC_ISSUER_URL
+        value = module.auth0_oidc.OIDC_ISSUER_URL
       },
       {
         name  = "OIDC_DISCOVERY_URL"
-        value = module.cognito_app.OIDC_DISCOVERY_URL
+        value = module.auth0_oidc.OIDC_DISCOVERY_URL
       },
       {
         name  = "OIDC_LOGOUT_URL"
-        value = module.cognito_app.OIDC_LOGOUT_URL
+        value = module.auth0_oidc.OIDC_LOGOUT_URL
       },
       {
         name  = "OIDC_LOGOUT_REDIRECT_URL"
-        value = module.cognito_app.OIDC_LOGOUT_REDIRECT_URL
+        value = module.auth0_oidc.OIDC_LOGOUT_REDIRECT_URL
       },
       {
         name  = "OIDC_CALLBACK_URL"
-        value = module.cognito_app.OIDC_CALLBACK_URL
+        value = module.auth0_oidc.OIDC_CALLBACK_URL
       }
     ],
     [
@@ -107,7 +107,7 @@ locals {
     [
       {
         name      = "OIDC_CLIENT_SECRET"
-        valueFrom = module.cognito_app.OIDC_CLIENT_SECRET.arn
+        valueFrom = module.auth0_oidc.OIDC_CLIENT_SECRET.arn
       }
     ]
   )
@@ -204,7 +204,7 @@ resource "aws_ecs_task_definition" "app" {
     },
     {
       name         = "oidc"
-      image        = "public.ecr.aws/hereya/oidc-sidecar:06e31a8"
+      image        = "public.ecr.aws/hereya/oidc-sidecar:fb22c23"
       cpu          = 256
       memory       = 512
       essential    = true
@@ -338,9 +338,9 @@ data "aws_iam_policy_document" "task_execution" {
   }
 }
 
-module "cognito_app" {
-  source                   = "github.com/hereya/terraform-modules//cognito-app/module?ref=v0.19.0"
-  app_base_url             = "https://${local.domain_name}"
-  cognito_user_pool_domain = var.cognito_user_pool_domain
-  cognito_user_pool_id     = var.cognito_user_pool_id
+module "auth0_oidc" {
+  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.26.0"
+  auth0_custom_domain = var.auth0_custom_domain
+  root_url            = "https://${local.domain_name}"
+  app_name_prefix     = local.project_name
 }

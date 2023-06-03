@@ -1,6 +1,6 @@
 # WEB APP DEPLOY
 
-A DReAM package that deploys Web app to ECS secured with Cognito.
+A DReAM package that deploys Web app to ECS secured with Auth0.
 
 ## Usage
 
