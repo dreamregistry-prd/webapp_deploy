@@ -44,7 +44,8 @@ data "aws_lb_listener" "https" {
 }
 
 data "aws_route53_zone" "root" {
-  name = var.domain_suffix
+  name         = var.domain_suffix
+  private_zone = var.is_private_domain
 }
 
 locals {

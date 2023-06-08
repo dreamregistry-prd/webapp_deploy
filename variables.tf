@@ -19,6 +19,12 @@ variable "domain_prefix" {
   default     = null
 }
 
+variable "is_private_domain" {
+  description = "whether the domain is to be defined in a private hosted zone or not"
+  type        = bool
+  default     = false
+}
+
 variable "domain_suffix" {
   description = "domain suffix to use for the service"
   type        = string
