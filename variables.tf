@@ -19,6 +19,12 @@ variable "domain_prefix" {
   default     = null
 }
 
+variable "public_domain_suffix" {
+  description = "public domain suffix to use for certificate validation"
+  type        = string
+  default     = null
+}
+
 variable "is_private_domain" {
   description = "whether the domain is to be defined in a private hosted zone or not"
   type        = bool

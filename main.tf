@@ -248,13 +248,14 @@ resource "aws_lb_target_group" "app" {
 }
 
 module "alb_certificate" {
-  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.29.0"
-  alb_arn            = var.alb_arn
-  domain_name_prefix = local.domain_prefix
-  route53_zone_name  = var.domain_suffix
-  attach_to_alb      = true
-  alb_listener_arn   = data.aws_lb_listener.https.arn
-  is_private_domain  = var.is_private_domain
+  source               = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.29.0"
+  alb_arn              = var.alb_arn
+  domain_name_prefix   = local.domain_prefix
+  route53_zone_name    = var.domain_suffix
+  public_domain_suffix = var.public_domain_suffix
+  attach_to_alb        = true
+  alb_listener_arn     = data.aws_lb_listener.https.arn
+  is_private_domain    = var.is_private_domain
 }
 
 resource "aws_lb_listener_rule" "host_based_weighted_routing" {
