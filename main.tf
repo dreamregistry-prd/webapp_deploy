@@ -248,12 +248,13 @@ resource "aws_lb_target_group" "app" {
 }
 
 module "alb_certificate" {
-  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.19.0"
+  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.27.0"
   alb_arn            = var.alb_arn
   domain_name_prefix = local.domain_prefix
   route53_zone_name  = var.domain_suffix
   attach_to_alb      = true
   alb_listener_arn   = data.aws_lb_listener.https.arn
+  is_private_domain  = var.is_private_domain
 }
 
 resource "aws_lb_listener_rule" "host_based_weighted_routing" {
@@ -340,7 +341,7 @@ data "aws_iam_policy_document" "task_execution" {
 }
 
 module "auth0_oidc" {
-  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.26.0"
+  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.27.0"
   auth0_custom_domain = var.auth0_custom_domain
   root_url            = "https://${local.domain_name}"
   app_name_prefix     = local.project_name
