@@ -248,7 +248,7 @@ resource "aws_lb_target_group" "app" {
 }
 
 module "alb_certificate" {
-  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.27.0"
+  source             = "github.com/hereya/terraform-modules//alb-certificate/module?ref=v0.28.0"
   alb_arn            = var.alb_arn
   domain_name_prefix = local.domain_prefix
   route53_zone_name  = var.domain_suffix
