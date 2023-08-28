@@ -275,8 +275,12 @@ resource "aws_lb_listener_rule" "host_based_weighted_routing" {
   }
 }
 
+resource random_pet "task_execution_iam_suffix" {
+  length = 1
+}
+
 resource "aws_security_group" "web" {
-  name = "web"
+  name = "web${random_pet.task_execution_iam_suffix.id}"
 }
 
 resource "aws_security_group_rule" "allow_http" {
@@ -308,10 +312,6 @@ data "aws_iam_policy_document" "ecs_assume_role" {
 
     actions = ["sts:AssumeRole"]
   }
-}
-
-resource random_pet "task_execution_iam_suffix" {
-  length = 1
 }
 
 resource "aws_iam_role" "task_execution" {
