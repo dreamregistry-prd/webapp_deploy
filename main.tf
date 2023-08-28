@@ -61,6 +61,7 @@ locals {
   raw_secrets = [
     for k, v in var.dream_env : {
       name      = k
+      //noinspection HILUnresolvedReference
       valueFrom = try(v.arn, null)
     }
   ]
@@ -71,27 +72,27 @@ locals {
     [
       {
         name  = "OIDC_CLIENT_ID"
-        value = module.auth0_oidc.OIDC_CLIENT_ID
+        value = local.oidc_env.OIDC_CLIENT_ID
       },
       {
         name  = "OIDC_ISSUER_URL"
-        value = module.auth0_oidc.OIDC_ISSUER_URL
+        value = local.oidc_env.OIDC_ISSUER_URL
       },
       {
         name  = "OIDC_DISCOVERY_URL"
-        value = module.auth0_oidc.OIDC_DISCOVERY_URL
+        value = local.oidc_env.OIDC_DISCOVERY_URL
       },
       {
         name  = "OIDC_LOGOUT_URL"
-        value = module.auth0_oidc.OIDC_LOGOUT_URL
+        value = local.oidc_env.OIDC_LOGOUT_URL
       },
       {
         name  = "OIDC_LOGOUT_REDIRECT_URL"
-        value = module.auth0_oidc.OIDC_LOGOUT_REDIRECT_URL
+        value = local.oidc_env.OIDC_LOGOUT_REDIRECT_URL
       },
       {
         name  = "OIDC_CALLBACK_URL"
-        value = module.auth0_oidc.OIDC_CALLBACK_URL
+        value = local.oidc_env.OIDC_CALLBACK_URL
       }
     ],
     [
@@ -108,7 +109,8 @@ locals {
     [
       {
         name      = "OIDC_CLIENT_SECRET"
-        valueFrom = module.auth0_oidc.OIDC_CLIENT_SECRET.arn
+        //noinspection HILUnresolvedReference
+        valueFrom = local.oidc_module.OIDC_CLIENT_SECRET.arn
       }
     ]
   )
@@ -339,11 +341,4 @@ data "aws_iam_policy_document" "task_execution" {
     ]
     resources = ["*"]
   }
-}
-
-module "auth0_oidc" {
-  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.27.0"
-  auth0_custom_domain = var.auth0_custom_domain
-  root_url            = "https://${local.domain_name}"
-  app_name_prefix     = local.project_name
 }
