@@ -310,14 +310,18 @@ data "aws_iam_policy_document" "ecs_assume_role" {
   }
 }
 
+resource random_pet "task_execution_iam_suffix" {
+  length = 1
+}
+
 resource "aws_iam_role" "task_execution" {
-  name               = "DReAMPoCECSTaskExecutionRole"
+  name               = "DReAMPoCECSTaskExecutionRole${random_pet.task_execution_iam_suffix.id}"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
 
 resource "aws_iam_policy" "task_execution" {
   policy      = data.aws_iam_policy_document.task_execution.json
-  name        = "DReAMPoCECSTaskExecutionPolicy"
+  name        = "DReAMPoCECSTaskExecutionPolicy${random_pet.task_execution_iam_suffix.id}"
   description = "Grants required permissions to ECS tasks"
 }
 
