@@ -65,10 +65,14 @@ locals {
       valueFrom = try(v.arn, null)
     }
   ]
+  app_env = [
+    for e in local.raw_env : e if e.value != null
+  ]
+  app_secrets = [
+    for e in local.raw_secrets : e if e.valueFrom != null
+  ]
   env = concat(
-    [
-      for e in local.raw_env : e if e.value != null
-    ],
+    local.app_env,
     [
       {
         name  = "OIDC_CLIENT_ID"
@@ -103,9 +107,7 @@ locals {
     ]
   )
   secrets = concat(
-    [
-      for e in local.raw_secrets : e if e.valueFrom != null
-    ],
+    local.app_secrets,
     [
       {
         name      = "OIDC_CLIENT_SECRET"
@@ -194,7 +196,7 @@ resource "aws_ecs_task_definition" "app" {
           "awslogs-stream-prefix" : local.project_name
         }
       },
-      environment = [
+      environment = concat(local.app_env, [
         {
           name  = "PORT"
           value = "3000"
@@ -203,7 +205,8 @@ resource "aws_ecs_task_definition" "app" {
           name  = "AUTH_ENDPOINT"
           value = "http://127.0.0.1:9000/auth/authenticate"
         }
-      ]
+      ])
+      secrets = local.app_secrets
     },
     {
       name         = "oidc"
