@@ -349,3 +349,21 @@ data "aws_iam_policy_document" "task_execution" {
     resources = ["*"]
   }
 }
+
+locals {
+  policy_env = {
+    for k, v in var.dream_env : k => v if startswith(k, "IAM_POLICY_")
+  }
+}
+
+resource "aws_iam_policy" "policy_from_env" {
+  for_each    = local.policy_env
+  description = "Grants required permissions to ECS tasks"
+  policy      = each.value
+}
+
+resource "aws_iam_role_policy_attachment" "policy_from_env" {
+  for_each = local.policy_env
+  policy_arn = aws_iam_policy.policy_from_env[each.key].arn
+  role       = aws_iam_role.task_execution.name
+}
