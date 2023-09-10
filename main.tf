@@ -149,6 +149,7 @@ resource "aws_ecs_task_definition" "app" {
   network_mode             = "awsvpc"
   cpu                      = 1024
   memory                   = 2048
+  task_role_arn            = aws_iam_role.task.arn
   execution_role_arn       = aws_iam_role.task_execution.arn
   container_definitions    = jsonencode([
     {
@@ -356,6 +357,10 @@ locals {
   }
 }
 
+resource "aws_iam_role" "task" {
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
+}
+
 resource "aws_iam_policy" "policy_from_env" {
   for_each    = local.policy_env
   description = "Grants required permissions to ECS tasks"
@@ -363,7 +368,7 @@ resource "aws_iam_policy" "policy_from_env" {
 }
 
 resource "aws_iam_role_policy_attachment" "policy_from_env" {
-  for_each = local.policy_env
+  for_each   = local.policy_env
   policy_arn = aws_iam_policy.policy_from_env[each.key].arn
-  role       = aws_iam_role.task_execution.name
+  role       = aws_iam_role.task.name
 }
