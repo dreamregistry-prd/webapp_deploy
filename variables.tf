@@ -1,6 +1,7 @@
 variable "auth0_custom_domain" {
   type        = string
   description = "Auth0 custom domain"
+  default     = null
 }
 
 variable "use_cognito" {
