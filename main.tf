@@ -154,7 +154,7 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions    = jsonencode([
     {
       name         = "envoy"
-      image        = "public.ecr.aws/hereya/bff-envoy:522c902"
+      image        = "public.ecr.aws/hereya/bff-envoy:96b6627"
       cpu          = 256
       memory       = 512
       essential    = true
